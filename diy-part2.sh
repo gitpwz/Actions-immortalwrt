@@ -47,6 +47,9 @@ sed -i 's/luci-theme-material/luci-theme-argon/g' feeds/luci/collections/luci/Ma
 # HelmiWrt packages
 git clone --depth=1 https://github.com/Haris131/helmiwrt-packages package/community
 
+# USB
+git clone --depth=1 https://github.com/xuxin1955/msm8916-openwrt package/usb-gadget
+
 #temp
 git clone https://github.com/lkiuyu/luci-app-cpu-perf package/luci-app-cpu-perf
 git clone https://github.com/lkiuyu/luci-app-cpu-status package/luci-app-cpu-status
