@@ -36,4 +36,5 @@ echo >> feeds.conf.default
 echo 'src-git istore https://github.com/linkease/istore;main' >> feeds.conf.default
 
 # packages
-sed -i 's|src-git packages https://github.com/immortalwrt/packages\.git|src-git packages https://github.com/openwrt/packages|' feeds.conf.default
+sed -i 's|src-git packages https://github.com/immortalwrt/packages\.git|src-git packages https://github.com/xuxin1955/packages.git;master|' feeds.conf.default
+
