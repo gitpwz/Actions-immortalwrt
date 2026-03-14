@@ -189,9 +189,9 @@ jobs:
       run: |
         echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
         cat <<EOF > release.txt
-        🚀 OpenWrt firmware for hlk7628n
+        🚀 OpenWrt firmware for hlk7628n WIFI路由模块
         ----------------------
-        设备: hlk7628n
+        设备: hlk7628n WIFI路由模块
         时间: $(date +"%Y-%m-%d %H:%M")
         内核版本: 6.12.X
         源码仓库: $REPO_URL
