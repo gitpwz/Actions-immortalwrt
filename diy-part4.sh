@@ -8,7 +8,7 @@ src-git luci https://github.com/immortalwrt/luci.git;openwrt-25.12
 src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
 src-git telephony https://github.com/openwrt/telephony.git;openwrt-25.12
 src-git video https://github.com/openwrt/video.git;openwrt-25.12
-src-git qmodem https://github.com/FUjr/QModem.git;main
+#src-git qmodem https://github.com/FUjr/QModem.git;main
 src-git kenzo https://github.com/kenzok8/openwrt-packages
 src-git small https://github.com/kenzok8/small
 src-git rtp https://github.com/xuanranran/openwrt-rtp2httpd
@@ -22,11 +22,11 @@ echo "===== feeds.conf.default 覆盖完成 ====="
 
 # turboacc
 # curl -sSL https://raw.githubusercontent.com/chenmozhijin/turboacc/luci/add_turboacc.sh -o add_turboacc.sh && bash add_turboacc.sh --no-sfe
-curl -sSL https://raw.githubusercontent.com/chenmozhijin/turboacc/luci/add_turboacc.sh -o add_turboacc.sh && bash add_turboacc.sh
+#curl -sSL https://raw.githubusercontent.com/chenmozhijin/turboacc/luci/add_turboacc.sh -o add_turboacc.sh && bash add_turboacc.sh
 
 
 # OpenClash
-git clone --depth 1 https://github.com/vernesong/OpenClash.git OpenClash
+#git clone --depth 1 https://github.com/vernesong/OpenClash.git OpenClash
 
 
 
