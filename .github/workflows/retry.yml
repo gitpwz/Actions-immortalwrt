@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download firmware artifact
-        uses: actions/download-artifact@main
+        uses: actions/upload-artifact@main
         with:
           name: ${{ github.event.inputs.artifact_name }}
 
