@@ -18,8 +18,13 @@ jobs:
     steps:
       - name: Download firmware artifact
         uses: actions/download-artifact@v8
-        with:
-          name: ${{ github.event.inputs.artifact_name }}
+    with:
+    path: /home/runner/work/Actions-immortalwrt/Actions-immortalwrt/openwrt/bin/targets/msm89xx/msm8916
+   name: ${{ github.event.inputs.artifact_name }}
+    run: ls -R /home/runner/work/Actions-immortalwrt/Actions-immortalwrt/openwrt/bin/targets/msm89xx/msm8916
+        
+#        with:
+#          name: ${{ github.event.inputs.artifact_name }}
 
       - name: Create Release and upload files
         uses: ncipollo/release-action@main
