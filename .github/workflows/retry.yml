@@ -1,0 +1,31 @@
+name: 🔄 Retry Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_name:
+        description: 'Artifact name (e.g. openwrt-firmware__202603191537)'
+        required: true
+        type: string
+      tag_name:
+        description: 'Git tag for release (e.g. 2026.03.19-1537)'
+        required: true
+        type: string
+
+jobs:
+  retry-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download firmware artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.event.inputs.artifact_name }}
+
+      - name: Create Release and upload files
+        uses: ncipollo/release-action@main
+        with:
+          token: ${{ secrets.ForActionsOnly }}  # 必须用 PAT！
+          tag: ${{ github.event.inputs.tag_name }}
+          artifacts: "**/*"
+          allowUpdates: true
+          draft: false
