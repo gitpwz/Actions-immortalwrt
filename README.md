@@ -1,5 +1,12 @@
 高通骁龙410云编译immortalwrt
 
+
+
+
+
+
+
+
 CPU信息:
 
 型号: AMD EPYC 7763 64-Core Processor
@@ -44,29 +51,22 @@ kmod-usb-net-rndis
 
 目前开启的Realtek系列网卡
 
-kmod-rtw88-8812a
 
 kmod-rtw88-8812au
 
-kmod-rtw88-8814a
 
 kmod-rtw88-8814au
 
-kmod-rtw88-8821a
 
 kmod-rtw88-8821au
 
-kmod-rtw88-8821c
 
-kmod-rtw88-8821cu和rtl8812cu通用
+kmod-rtw88-8821cu和rtl8811cu通用
 
-kmod-rtw88-8822b
 
 kmod-rtw88-8822bu
 
-kmod-rtw88-8822c
 
-kmod-rtw88-8822cs
 
 kmod-rtw88-8822cu和rtl8812cu通用
 
@@ -74,7 +74,7 @@ kmod-rtw88-8822cu和rtl8812cu通用
 
 kmod-aic8800-usb
 
-需要其他插件自行通过config_small配置添加，注意同时开启对应依赖选项
+需要其他插件自行通过config文件内对应配置添加，注意同时开启对应依赖选项
 
 aic系列usb网卡从储存模式切换到WIFI模式命令！
 
