@@ -266,7 +266,7 @@ jobs:
     - name: Delete old workflow runs via GitHub API
       if: always()
       env:
-        GITHUB_TOKEN: ${{ secrets.ForActionsOnly }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RETAIN_DAYS: 7
         KEEP_MINIMUM_RUNS: 5
       run: |
