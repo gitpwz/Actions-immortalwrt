@@ -1,0 +1,33 @@
+name: 📂 Explore Directory Structure
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_path:
+        description: 'Target directory path to explore (e.g., openwrt/bin)'
+        required: true
+        type: string
+        default: '.'
+
+jobs:
+  explore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install tree (for pretty directory listing)
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Validate and list directory structure
+        run: |
+          TARGET="${{ github.event.inputs.target_path }}"
+          if [ ! -d "$TARGET" ]; then
+            echo "❌ Error: Directory '$TARGET' does not exist!"
+            exit 1
+          fi
+
+          echo "🔍 Exploring directory: $TARGET"
+          echo "========================================"
+          tree -a -L 10 "$TARGET"
+        shell: bash
