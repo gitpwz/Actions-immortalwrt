@@ -18,7 +18,7 @@ sed -i 's/luci-theme-material/luci-theme-argon/g' feeds/luci/collections/luci/Ma
 
 
 # HelmiWrt packages
-git clone --depth=1 https://github.com/Haris131/helmiwrt-packages package/community
+#git clone --depth=1 https://github.com/Haris131/helmiwrt-packages package/community
 
 rm -rf feeds/packages/net/onionshare-cli
 rm -rf feeds/luci/applications/luci-app-libernet-plus
