@@ -70,24 +70,6 @@ kmod-rtw88-8822bu
 
 kmod-rtw88-8822cu和rtl8812cu通用
 
-目前开启的aic系列网卡
-
-kmod-aic8800-usb
-
-需要其他插件自行通过config文件内对应配置添加，注意同时开启对应依赖选项
-
-aic系列usb网卡从储存模式切换到WIFI模式命令！
-
-lsusb查看
-
-Bus 001 Device 014: ID a69c:5721 aicsemi Aic MSC
-
-把aic.json配置放到etc目录去
-
-ttyd终端执行命令 usbmode -s -c /etc/aic.json
-
-Bus 001 Device 015: ID 3625:0110 AICSemi AIC8800DC
-
 ![RTL8812CU网卡](https://qqbot.ugcimg.cn/1106413613/28efddef1be940bee43f05f27758994db2be56c8/916b254e6bf0605a98dadfce2eb6e89b)
 
 ![8812CU接线焊接图](https://raw.githubusercontent.com/xuxin1955/Actions-OpenWrt/main/pics/IMG_20260131_183658.jpg)
