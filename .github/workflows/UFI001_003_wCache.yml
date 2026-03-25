@@ -81,7 +81,7 @@ jobs:
 
     # 恢复工具链缓存
     - name: Restore Toolchain Cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           /mnt/openwrt/staging_dir/toolchain-*
@@ -92,7 +92,7 @@ jobs:
 
     # 恢复软件包构建缓存
     - name: Restore Package Build Cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           /mnt/openwrt/staging_dir/target-*
