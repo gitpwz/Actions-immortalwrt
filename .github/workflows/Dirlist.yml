@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
 
       - name: Install tree (for pretty directory listing)
         run: sudo apt-get update && sudo apt-get install -y tree
