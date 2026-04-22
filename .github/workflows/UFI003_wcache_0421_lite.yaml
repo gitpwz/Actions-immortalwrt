@@ -288,7 +288,7 @@ jobs:
       if: env.UPLOAD_RELEASE == 'true' && steps.organize.outputs.status == 'success'
       uses: ncipollo/release-action@main
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.ForActionsOnly }}
         tag: ${{ steps.tag.outputs.release_tag }}
         bodyFile: release.txt
         artifacts: ${{ env.FIRMWARE }}/**/*
