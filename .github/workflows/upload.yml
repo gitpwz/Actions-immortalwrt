@@ -1,0 +1,49 @@
+name: Download and Upload Manifest File
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_url:
+        description: 'Manifest file URL'
+        required: true
+        default: 'https://github.com/gitpwz/Actions-immortalwrt/releases/download/2026.04.15-0254/immortalwrt-msm89xx-msm8916-openstick-ufi003.manifest'
+
+jobs:
+  download-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download manifest file
+      run: |
+        wget "${{ github.event.inputs.manifest_url }}" -O immortalwrt-msm89xx-msm8916-openstick-ufi003.manifest
+
+    - name: Get file info
+      id: file_info
+      run: |
+        FILE_SIZE=$(stat -c%s immortalwrt-msm89xx-msm8916-openstick-ufi003.manifest)
+        FORMATTED_SIZE=$(numfmt --to=iec --format="%.2f" $FILE_SIZE)
+        CURRENT_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        
+        echo "file_size_bytes=$FILE_SIZE" >> $GITHUB_OUTPUT
+        echo "file_size_formatted=$FORMATTED_SIZE" >> $GITHUB_OUTPUT
+        echo "upload_time=$CURRENT_TIME" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.ForActionsOnly }}
+        tag: "manifest-${{ github.run_number }}"
+        name: "Manifest File - ${{ github.run_number }}"
+        body: |
+          Automatic upload of manifest file
+          
+          Original URL: ${{ github.event.inputs.manifest_url }}
+          File Size: ${{ steps.file_info.outputs.file_size_formatted }} (${{ steps.file_info.outputs.file_size_bytes }} bytes)
+          Upload Time: ${{ steps.file_info.outputs.upload_time }}
+        artifacts: "immortalwrt-msm89xx-msm8916-openstick-ufi003.manifest"
+        allowUpdates: true
+        replacesArtifacts: true
+        draft: false
+        prerelease: false
