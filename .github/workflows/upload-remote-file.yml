@@ -1,0 +1,83 @@
+name: Upload Remote File
+
+on:
+  workflow_dispatch:
+    inputs:
+      remote_url:
+        description: "URL of the remote file to download and upload"
+        required: true
+        type: string
+      destination_path:
+        description: "Destination path in the repository (e.g., assets/file.txt)"
+        required: true
+        type: string
+      commit_message:
+        description: "Commit message for the upload"
+        required: false
+        default: "Upload remote file: ${{ github.event.inputs.remote_url }}"
+        type: string
+
+jobs:
+  upload-remote-file:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.FORACTIONSONLY }}
+          
+      - name: Download remote file
+        id: download
+        run: |
+          # Create directory structure if needed
+          mkdir -p "$(dirname '${{ github.event.inputs.destination_path }}')"
+          
+          # Download the file
+          curl -L -o '${{ github.event.inputs.destination_path }}' '${{ github.event.inputs.remote_url }}'
+          
+          # Get file size in bytes
+          FILE_SIZE=$(stat -c "%s" '${{ github.event.inputs.destination_path }}' 2>/dev/null || stat -f "%z" '${{ github.event.inputs.destination_path }}' 2>/dev/null)
+          echo "file_size=${FILE_SIZE}" >> "$GITHUB_OUTPUT"
+          
+          # Get current timestamp
+          UPLOAD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          echo "upload_time=${UPLOAD_TIME}" >> "$GITHUB_OUTPUT"
+          
+      - name: Create upload record
+        id: create-record
+        run: |
+          # Create record file with metadata
+          RECORD_FILE="${{ github.event.inputs.destination_path }}.record"
+          
+          cat > "$RECORD_FILE" << 'EOF'
+# Upload Record
+Generated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+Remote URL: ${{ github.event.inputs.remote_url }}
+Destination: ${{ github.event.inputs.destination_path }}
+File Size: ${{ steps.download.outputs.file_size }} bytes
+Upload Time: ${{ steps.download.outputs.upload_time }}
+EOF
+          
+          echo "record_file=${RECORD_FILE}" >> "$GITHUB_OUTPUT"
+          
+      - name: Commit and push files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: ${{ github.event.inputs.commit_message }}
+          file_pattern: |
+            ${{ github.event.inputs.destination_path }}
+            ${{ steps.create-record.outputs.record_file }}
+          repository: .
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
+          commit_author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          token: ${{ secrets.FORACTIONSONLY }}
+
+      - name: Upload artifact (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: uploaded-file
+          path: |
+            ${{ github.event.inputs.destination_path }}
+            ${{ steps.create-record.outputs.record_file }}
