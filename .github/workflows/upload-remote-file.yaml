@@ -12,11 +12,6 @@ on:
         required: false
         default: 'uploaded_files/'
         type: string
-      commit_message:
-        description: 'Commit message for the upload'
-        required: false
-        default: 'Upload file from remote URL via GitHub Actions'
-        type: string
 
 jobs:
   download-upload:
@@ -29,13 +24,10 @@ jobs:
           token: ${{ secrets.FORACTIONSONLY }}
       
       - name: Create target directory
-        run: |
-          mkdir -p "${{ github.event.inputs.target_path }}"
+        run: mkdir -p "${{ github.event.inputs.target_path }}"
           
       - name: Download file from remote URL
-        run: |
-          echo "Downloading file from: ${{ github.event.inputs.remote_url }}"
-          curl -L -o downloaded_file.tmp "${{ github.event.inputs.remote_url }}"
+        run: curl -L -o downloaded_file.tmp "${{ github.event.inputs.remote_url }}"
           
       - name: Get file information
         id: file_info
@@ -48,41 +40,35 @@ jobs:
           echo "file_name=$FILE_NAME" >> $GITHUB_OUTPUT
           echo "download_time=$DOWNLOAD_TIME" >> $GITHUB_OUTPUT
           
-          # Save file info to metadata file
+          # Create metadata file
           cat > "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt" << EOF
 File Name: $FILE_NAME
 Original URL: ${{ github.event.inputs.remote_url }}
 File Size: $FILE_SIZE bytes
 Download Time: $DOWNLOAD_TIME
-Uploaded by GitHub Actions: ${{ github.repository_owner }}
 EOF
           
-      - name: Move downloaded file to target location
-        run: |
-          mv downloaded_file.tmp "${{ github.event.inputs.target_path }}/${{ steps.file_info.outputs.file_name }}"
+      - name: Move file to target location
+        run: mv downloaded_file.tmp "${{ github.event.inputs.target_path }}/${{ steps.file_info.outputs.file_name }}"
           
-      - name: Commit and push changes
+      - name: Commit and push
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
           git add .
-          git status
           
-          if [[ -z $(git status --porcelain) ]]; then
-            echo "No changes to commit"
-          else
-            git commit -m "${{ github.event.inputs.commit_message }} | File: ${{ steps.file_info.outputs.file_name }}, Size: ${{ steps.file_info.outputs.file_size }} bytes, Downloaded at: ${{ steps.file_info.outputs.download_time }}"
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Upload file from ${{ github.event.inputs.remote_url }} | Size: ${{ steps.file_info.outputs.file_size }} bytes"
             git push
+          else
+            echo "No changes to commit"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.FORACTIONSONLY }}
           
-      - name: Summary of uploaded file
+      - name: Summary
         run: |
           echo "## File Upload Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **File Name:** ${{ steps.file_info.outputs.file_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **File Size:** ${{ steps.file_info.outputs.file_size }} bytes" >> $GITHUB_STEP_SUMMARY
-          echo "- **Download Time:** ${{ steps.file_info.outputs.download_time }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Target Path:** ${{ github.event.inputs.target_path }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Original URL:** ${{ github.event.inputs.remote_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- File: ${{ steps.file_info.outputs.file_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Size: ${{ steps.file_info.outputs.file_size }} bytes" >> $GITHUB_STEP_SUMMARY
+          echo "- Downloaded at: ${{ steps.file_info.outputs.download_time }}" >> $GITHUB_STEP_SUMMARY
