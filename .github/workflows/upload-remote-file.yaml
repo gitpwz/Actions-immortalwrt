@@ -41,12 +41,10 @@ jobs:
           echo "download_time=$DOWNLOAD_TIME" >> $GITHUB_OUTPUT
           
           # Create metadata file
-          cat > "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt" << EOF
-File Name: $FILE_NAME
-Original URL: ${{ github.event.inputs.remote_url }}
-File Size: $FILE_SIZE bytes
-Download Time: $DOWNLOAD_TIME
-EOF
+          echo "File Name: $FILE_NAME" > "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
+          echo "Original URL: ${{ github.event.inputs.remote_url }}" >> "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
+          echo "File Size: $FILE_SIZE bytes" >> "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
+          echo "Download Time: $DOWNLOAD_TIME" >> "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
           
       - name: Move file to target location
         run: mv downloaded_file.tmp "${{ github.event.inputs.target_path }}/${{ steps.file_info.outputs.file_name }}"
