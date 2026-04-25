@@ -1,4 +1,0 @@
-File Name: openwrt-ar71xx-tiny-tl-wr720n-v3-16m-squashfs-factory.bin
-Original URL: https://raw.githubusercontent.com/jyy5206/TP-link-WR720N-16M-Flush-Firmware/refs/heads/master/openwrt-ar71xx-tiny-tl-wr720n-v3-16m-squashfs-factory.bin
-File Size: 16252928 bytes
-Download Time: 2026-04-25 17:54:33 UTC
