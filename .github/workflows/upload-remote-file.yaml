@@ -1,4 +1,4 @@
-name: Download and Upload Remote File
+name: Download and Publish Remote File
 
 on:
   workflow_dispatch:
@@ -7,14 +7,23 @@ on:
         description: 'Remote file URL to download'
         required: true
         type: string
-      target_path:
-        description: 'Target path in repository to save the file'
+      asset_name:
+        description: 'Name for the asset in release (optional, will use original filename if not provided)'
         required: false
-        default: 'uploaded_files/'
+        type: string
+      tag_name:
+        description: 'Tag name for the release (will create new if not exists)'
+        required: true
+        default: 'v1.0.0'
+        type: string
+      release_title:
+        description: 'Title for the release'
+        required: false
+        default: 'Automated Release'
         type: string
 
 jobs:
-  download-upload:
+  download-and-publish:
     runs-on: ubuntu-latest
     
     steps:
@@ -23,9 +32,6 @@ jobs:
         with:
           token: ${{ secrets.FORACTIONSONLY }}
       
-      - name: Create target directory
-        run: mkdir -p "${{ github.event.inputs.target_path }}"
-          
       - name: Download file from remote URL
         run: curl -L -o downloaded_file.tmp "${{ github.event.inputs.remote_url }}"
           
@@ -33,40 +39,54 @@ jobs:
         id: file_info
         run: |
           FILE_SIZE=$(stat -c%s downloaded_file.tmp)
-          FILE_NAME=$(basename "${{ github.event.inputs.remote_url }}")
+          ORIGINAL_NAME=$(basename "${{ github.event.inputs.remote_url }}")
           DOWNLOAD_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
           
+          # Use provided asset name or fallback to original filename
+          ASSET_NAME="${{ github.event.inputs.asset_name }}"
+          if [ -z "$ASSET_NAME" ]; then
+            ASSET_NAME="$ORIGINAL_NAME"
+          fi
+          
           echo "file_size=$FILE_SIZE" >> $GITHUB_OUTPUT
-          echo "file_name=$FILE_NAME" >> $GITHUB_OUTPUT
+          echo "original_name=$ORIGINAL_NAME" >> $GITHUB_OUTPUT
+          echo "asset_name=$ASSET_NAME" >> $GITHUB_OUTPUT
           echo "download_time=$DOWNLOAD_TIME" >> $GITHUB_OUTPUT
           
           # Create metadata file
-          echo "File Name: $FILE_NAME" > "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
-          echo "Original URL: ${{ github.event.inputs.remote_url }}" >> "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
-          echo "File Size: $FILE_SIZE bytes" >> "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
-          echo "Download Time: $DOWNLOAD_TIME" >> "${{ github.event.inputs.target_path }}/metadata_${FILE_NAME}.txt"
+          echo "File Name: $ORIGINAL_NAME" > "metadata_${ORIGINAL_NAME}.txt"
+          echo "Original URL: ${{ github.event.inputs.remote_url }}" >> "metadata_${ORIGINAL_NAME}.txt"
+          echo "File Size: $FILE_SIZE bytes" >> "metadata_${ORIGINAL_NAME}.txt"
+          echo "Download Time: $DOWNLOAD_TIME" >> "metadata_${ORIGINAL_NAME}.txt"
+          echo "Asset Name: $ASSET_NAME" >> "metadata_${ORIGINAL_NAME}.txt"
           
-      - name: Move file to target location
-        run: mv downloaded_file.tmp "${{ github.event.inputs.target_path }}/${{ steps.file_info.outputs.file_name }}"
+      - name: Rename downloaded file
+        run: mv downloaded_file.tmp "${{ steps.file_info.outputs.asset_name }}"
           
-      - name: Commit and push
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Upload file from ${{ github.event.inputs.remote_url }} | Size: ${{ steps.file_info.outputs.file_size }} bytes"
-            git push
-          else
-            echo "No changes to commit"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.FORACTIONSONLY }}
+      - name: Create or update release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.event.inputs.release_title }}
+          tag_name: ${{ github.event.inputs.tag_name }}
+          body: |
+            Automated release containing file from ${{ github.event.inputs.remote_url }}
+            
+            File Details:
+            - Original Name: ${{ steps.file_info.outputs.original_name }}
+            - Asset Name: ${{ steps.file_info.outputs.asset_name }}
+            - Size: ${{ steps.file_info.outputs.file_size }} bytes
+            - Downloaded at: ${{ steps.file_info.outputs.download_time }}
+          files: |
+            ${{ steps.file_info.outputs.asset_name }}
+            metadata_${{ steps.file_info.outputs.original_name }}.txt
+          token: ${{ secrets.FORACTIONSONLY }}
+          draft: false
+          prerelease: false
           
       - name: Summary
         run: |
-          echo "## File Upload Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- File: ${{ steps.file_info.outputs.file_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "## File Publication Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- File: ${{ steps.file_info.outputs.asset_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- Size: ${{ steps.file_info.outputs.file_size }} bytes" >> $GITHUB_STEP_SUMMARY
           echo "- Downloaded at: ${{ steps.file_info.outputs.download_time }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Released as asset to: ${{ github.event.inputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
